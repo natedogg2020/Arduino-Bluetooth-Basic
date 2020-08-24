@@ -5,6 +5,9 @@
  *  Download the App : 
  *  This program lets you to control a LED on pin 13 of arduino using a bluetooth module
  */
+
+#include "BluetoothSerial.h" //Header File for Serial Bluetooth, will be added by default into Arduino
+
 char Incoming_value = 0;                //Variable for storing Incoming_value
 void setup() 
 {

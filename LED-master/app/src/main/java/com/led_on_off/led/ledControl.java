@@ -16,15 +16,20 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.AsyncTask;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.UUID;
+
 
 
 public class ledControl extends ActionBarActivity {
 
    // Button btnOn, btnOff, btnDis;
-    Button On, Off, Discnt, Abt;
+    Button On, Off, On1, Off1, Discnt, Abt;
     String address = null;
+    StringBuilder stream = null;
+    byte[] buffer;
     private ProgressDialog progress;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
@@ -46,6 +51,8 @@ public class ledControl extends ActionBarActivity {
         //call the widgets
         On = (Button)findViewById(R.id.on_btn);
         Off = (Button)findViewById(R.id.off_btn);
+        On1 = (Button)findViewById(R.id.on_btn1);
+        Off1 = (Button)findViewById(R.id.off_btn1);
         Discnt = (Button)findViewById(R.id.dis_btn);
         Abt = (Button)findViewById(R.id.abt_btn);
 
@@ -66,6 +73,23 @@ public class ledControl extends ActionBarActivity {
             public void onClick(View v)
             {
                 turnOffLed();   //method to turn off
+            }
+        });
+
+        On1.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                turnOnLed1();      //method to turn on
+            }
+        });
+
+        Off1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                turnOffLed1();   //method to turn off
             }
         });
 
@@ -96,6 +120,15 @@ public class ledControl extends ActionBarActivity {
 
     }
 
+    private StringBuilder readStream() throws IOException {
+        BufferedReader r = new BufferedReader(new InputStreamReader(btSocket.getInputStream()));
+        StringBuilder total = new StringBuilder();
+        for (String line; (line = r.readLine()) != null; ) {
+            total.append(line).append('\n');
+        }
+        return total;
+    }
+
     private void turnOffLed()
     {
         if (btSocket!=null)
@@ -118,6 +151,38 @@ public class ledControl extends ActionBarActivity {
             try
             {
                 btSocket.getOutputStream().write("1".toString().getBytes());
+                stream = readStream();
+                msg(stream.toString());
+            }
+            catch (IOException e)
+            {
+                msg("Error");
+            }
+        }
+    }
+
+    private void turnOffLed1()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("2".toString().getBytes());
+            }
+            catch (IOException e)
+            {
+                msg("Error");
+            }
+        }
+    }
+
+    private void turnOnLed1()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("3".toString().getBytes());
             }
             catch (IOException e)
             {
@@ -134,7 +199,7 @@ public class ledControl extends ActionBarActivity {
 
     public  void about(View v)
     {
-        if(v.getId() == R.id.abt_txt)   //abt
+        if(v.getId() == R.id.abt_btn)   //abt
         {
             Intent i = new Intent(this, AboutActivity.class);
             startActivity(i);
