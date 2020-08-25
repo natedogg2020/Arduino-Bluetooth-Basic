@@ -13,6 +13,26 @@ void setup()
   ESP_BT.begin("ESP32_LED_Control"); //Name of your Bluetooth Signal
   Serial.println("Bluetooth Device is Ready to Pair");
 }
+
+void controlLine(int pin, int level){
+  String levelString = "";
+  if(level == HIGH){
+    levelString = "on";
+  }else {
+    levelString = "off";
+  }
+  if(digitalRead(pin) == level)
+  {
+    ESP_BT.println(("Pin "+ String(pin) +" is already " + levelString) );
+    digitalWrite(pin, level);  //If value is 1 then LED turns ON 
+  } else 
+  {
+    digitalWrite(pin, level);  //If value is 1 then LED turns ON 
+    ESP_BT.println(("Pin "+ String(pin) +" is turned "+levelString));
+  }
+  
+}
+
 void loop()
 {
   if(ESP_BT.available() > 0)  
@@ -23,24 +43,23 @@ void loop()
     if(Incoming_value == '1')            //Checks whether value of Incoming_value is equal to 1 
     {
       Serial.print("Received 1");
-      ESP_BT.println("LED 1 is turned on!!!");
-      digitalWrite(13, HIGH);  //If value is 1 then LED turns ON
+      controlLine(13, HIGH);
     }
     else if(Incoming_value == '0')       //Checks whether value of Incoming_value is equal to 0
     {
       Serial.print("Received 0");
-      digitalWrite(13, LOW);   //If value is 0 then LED turns OFF
+      controlLine(13, LOW);   //If value is 0 then LED turns OFF
     }
     if(Incoming_value == '3')            //Checks whether value of Incoming_value is equal to 1 
     {
       Serial.print("Received 3");
-      digitalWrite(12, HIGH);  //If value is 1 then LED turns ON
+      controlLine(12, HIGH);  //If value is 1 then LED turns ON
     }
     else if(Incoming_value == '2')       //Checks whether value of Incoming_value is equal to 0
     {
       Serial.print("Received 2");
       
-      digitalWrite(12, LOW);   //If value is 0 then LED turns OFF
+      controlLine(12, LOW);   //If value is 0 then LED turns OFF
     }
   }                            
  

@@ -19,8 +19,9 @@ import android.os.AsyncTask;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.UUID;
-
+import java.util.Calendar;
 
 
 public class ledControl extends ActionBarActivity {
@@ -121,12 +122,28 @@ public class ledControl extends ActionBarActivity {
     }
 
     private StringBuilder readStream() throws IOException {
-        BufferedReader r = new BufferedReader(new InputStreamReader(btSocket.getInputStream()));
+        long currentTimeA = Calendar.getInstance().getTimeInMillis();
+        currentTimeA += 250;
+        while(btSocket.getInputStream().available() < 1){
+            long currentTimeB = Calendar.getInstance().getTimeInMillis();
+            if (currentTimeB > currentTimeA){
+                return null;
+            }
+        }
         StringBuilder total = new StringBuilder();
-        for (String line; (line = r.readLine()) != null; ) {
-            total.append(line).append('\n');
+        while(btSocket.getInputStream().available() > 0){
+            BufferedReader r = new BufferedReader(new InputStreamReader(btSocket.getInputStream()));
+            total.append( r.readLine());//.append('\n');
         }
         return total;
+    }
+
+    private void toastStream(StringBuilder stream){
+        if(stream != null)
+        {
+            String streamString = stream.toString();
+            msg(streamString);
+        }
     }
 
     private void turnOffLed()
@@ -136,6 +153,7 @@ public class ledControl extends ActionBarActivity {
             try
             {
                 btSocket.getOutputStream().write("0".toString().getBytes());
+                toastStream(readStream());
             }
             catch (IOException e)
             {
@@ -151,8 +169,7 @@ public class ledControl extends ActionBarActivity {
             try
             {
                 btSocket.getOutputStream().write("1".toString().getBytes());
-                stream = readStream();
-                msg(stream.toString());
+                toastStream(readStream());
             }
             catch (IOException e)
             {
@@ -168,6 +185,7 @@ public class ledControl extends ActionBarActivity {
             try
             {
                 btSocket.getOutputStream().write("2".toString().getBytes());
+                toastStream(readStream());
             }
             catch (IOException e)
             {
@@ -183,6 +201,7 @@ public class ledControl extends ActionBarActivity {
             try
             {
                 btSocket.getOutputStream().write("3".toString().getBytes());
+                toastStream(readStream());
             }
             catch (IOException e)
             {
@@ -194,7 +213,7 @@ public class ledControl extends ActionBarActivity {
     // fast way to call Toast
     private void msg(String s)
     {
-        Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),s,Toast.LENGTH_SHORT).show();
     }
 
     public  void about(View v)
